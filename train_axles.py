@@ -21,14 +21,14 @@ import PIL
 
 from repvgg import get_RepVGG_func_by_name
 
-IMAGENET_TRAINSET_SIZE = 1281167
+# IMAGENET_TRAINSET_SIZE = 1281167
 
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('data', metavar='DIR',
                     help='path to dataset')
 parser.add_argument('-a', '--arch', metavar='ARCH', default='RepVGG-A0')
-parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
+parser.add_argument('-j', '--workers', default=0, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=120, type=int, metavar='N',
                     help='number of total epochs to run')
@@ -228,8 +228,8 @@ def main_worker(gpu, ngpus_per_node, args):
     val_dataset = datasets.ImageFolder(val_dir, data_transforms['val'])
     print(train_dataset.class_to_idx, len(train_dataset))
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=8)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=args.val_batch_size, shuffle=False, num_workers=8)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.workers)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=args.val_batch_size, shuffle=False, num_workers=args.workers)
 
     # train_sampler, train_loader = get_default_ImageNet_train_sampler_loader(args)
     # val_loader = get_default_ImageNet_val_loader(args)
@@ -287,6 +287,7 @@ def main_worker(gpu, ngpus_per_node, args):
             # remember best acc@1 and save checkpoint
             is_best = acc1 > best_acc1
             best_acc1 = max(acc1, best_acc1)
+            print('best acc:', best_acc1)
 
             save_checkpoint({
                 'epoch': epoch + 1,
